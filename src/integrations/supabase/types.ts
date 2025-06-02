@@ -9,45 +9,163 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      expenses: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string
+          expense_date: string
+          id: string
+          station_id: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description: string
+          expense_date?: string
+          id?: string
+          station_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string
+          expense_date?: string
+          id?: string
+          station_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fuel_records: {
         Row: {
           closing_stock: number
           created_at: string | null
+          created_by: string | null
           id: string
           input_mode: string
           meter_closing: number | null
           meter_opening: number | null
           opening_stock: number
+          price_per_litre: number | null
+          product_type: string | null
           pump_id: string
           record_date: string
           sales_volume: number
           station_code: string
+          total_sales: number | null
         }
         Insert: {
           closing_stock: number
           created_at?: string | null
+          created_by?: string | null
           id?: string
           input_mode: string
           meter_closing?: number | null
           meter_opening?: number | null
           opening_stock: number
+          price_per_litre?: number | null
+          product_type?: string | null
           pump_id: string
           record_date: string
           sales_volume: number
           station_code: string
+          total_sales?: number | null
         }
         Update: {
           closing_stock?: number
           created_at?: string | null
+          created_by?: string | null
           id?: string
           input_mode?: string
           meter_closing?: number | null
           meter_opening?: number | null
           opening_stock?: number
+          price_per_litre?: number | null
+          product_type?: string | null
           pump_id?: string
           record_date?: string
           sales_volume?: number
           station_code?: string
+          total_sales?: number | null
+        }
+        Relationships: []
+      }
+      monthly_stock: {
+        Row: {
+          actual_closing_stock: number | null
+          created_at: string | null
+          excess: number | null
+          id: string
+          month_year: string
+          opening_stock: number
+          product_type: string
+          station_id: string
+        }
+        Insert: {
+          actual_closing_stock?: number | null
+          created_at?: string | null
+          excess?: number | null
+          id?: string
+          month_year: string
+          opening_stock?: number
+          product_type: string
+          station_id: string
+        }
+        Update: {
+          actual_closing_stock?: number | null
+          created_at?: string | null
+          excess?: number | null
+          id?: string
+          month_year?: string
+          opening_stock?: number
+          product_type?: string
+          station_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_stock_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_prices: {
+        Row: {
+          created_at: string | null
+          effective_date: string
+          id: string
+          price_per_litre: number
+          product_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          effective_date?: string
+          id?: string
+          price_per_litre: number
+          product_type: string
+        }
+        Update: {
+          created_at?: string | null
+          effective_date?: string
+          id?: string
+          price_per_litre?: number
+          product_type?: string
         }
         Relationships: []
       }
@@ -66,6 +184,59 @@ export type Database = {
           full_name?: string | null
           id?: string
           role?: string
+        }
+        Relationships: []
+      }
+      pumps: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_type: string
+          pump_number: number
+          station_id: string
+          tank_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          product_type: string
+          pump_number: number
+          station_id: string
+          tank_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_type?: string
+          pump_number?: number
+          station_id?: string
+          tank_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pumps_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stations: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
