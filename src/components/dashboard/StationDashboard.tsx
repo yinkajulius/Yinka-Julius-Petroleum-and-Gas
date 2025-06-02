@@ -26,6 +26,7 @@ const StationDashboard = () => {
   const [station, setStation] = useState<Station | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [debugInfo, setDebugInfo] = useState<string>('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -35,39 +36,63 @@ const StationDashboard = () => {
   const loadUserData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setDebugInfo('No authenticated user found');
+        return;
+      }
+
+      console.log('Current user:', user.id);
 
       // Load user profile
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (profileData) {
+      if (profileError) {
+        console.error('Profile error:', profileError);
+        setDebugInfo(`Profile error: ${profileError.message}`);
+      } else if (profileData) {
         setProfile(profileData);
+        console.log('Profile loaded:', profileData);
       }
 
       // Load user's assigned station
-      const { data: userStation } = await supabase
+      const { data: userStation, error: userStationError } = await supabase
         .from('user_stations')
         .select('station_code')
         .eq('user_id', user.id)
         .single();
 
-      if (userStation) {
-        const { data: stationData } = await supabase
+      if (userStationError) {
+        console.error('User station error:', userStationError);
+        setDebugInfo(`User station error: ${userStationError.message}`);
+      } else if (userStation) {
+        console.log('User station data:', userStation);
+        
+        // Load station details
+        const { data: stationData, error: stationError } = await supabase
           .from('stations')
           .select('*')
           .eq('id', userStation.station_code)
           .single();
 
-        if (stationData) {
+        if (stationError) {
+          console.error('Station error:', stationError);
+          setDebugInfo(`Station error: ${stationError.message}. Looking for station with id: ${userStation.station_code}`);
+        } else if (stationData) {
           setStation(stationData);
+          console.log('Station loaded:', stationData);
+        } else {
+          setDebugInfo(`No station found with id: ${userStation.station_code}`);
         }
+      } else {
+        setDebugInfo('No station assignment found for this user');
       }
     } catch (error) {
       console.error('Error loading user data:', error);
+      setDebugInfo(`Unexpected error: ${error}`);
       toast({
         variant: "destructive",
         title: "Error",
@@ -104,7 +129,12 @@ const StationDashboard = () => {
               You are not assigned to any station. Please contact the administrator.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {debugInfo && (
+              <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
+                <strong>Debug Info:</strong> {debugInfo}
+              </div>
+            )}
             <Button onClick={handleLogout} variant="outline" className="w-full">
               <LogOut className="mr-2 h-4 w-4" />
               Logout
@@ -140,7 +170,7 @@ const StationDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="summary" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="summary" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Summary
