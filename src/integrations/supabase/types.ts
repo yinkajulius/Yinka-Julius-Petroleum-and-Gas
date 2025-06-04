@@ -195,6 +195,7 @@ export type Database = {
           pump_number: number
           station_id: string
           tank_id: string
+          capacity: number
         }
         Insert: {
           created_at?: string | null
@@ -203,6 +204,7 @@ export type Database = {
           pump_number: number
           station_id: string
           tank_id: string
+          capacity?: number
         }
         Update: {
           created_at?: string | null
@@ -211,6 +213,7 @@ export type Database = {
           pump_number?: number
           station_id?: string
           tank_id?: string
+          capacity?: number
         }
         Relationships: [
           {
@@ -260,6 +263,41 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      tank_capacities: {
+        Row: {
+          id: string;
+          station_code: string;
+          product_type: string;
+          capacity: number;
+          created_at: string;
+          updated_at: string;
+        }
+        Insert: {
+          id?: string;
+          station_code: string;
+          product_type: string;
+          capacity: number;
+          created_at?: string;
+          updated_at?: string;
+        }
+        Update: {
+          id?: string;
+          station_code?: string;
+          product_type?: string;
+          capacity?: number;
+          created_at?: string;
+          updated_at?: string;
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tank_capacities_station_code_fkey"
+            columns: ["station_code"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

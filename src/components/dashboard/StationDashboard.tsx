@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -9,7 +8,8 @@ import { LogOut, BarChart3, Fuel, Receipt, TrendingUp } from 'lucide-react';
 import FuelRecordForm from './FuelRecordForm';
 import ExpenseForm from './ExpenseForm';
 import DailySummary from './DailySummary';
-import StockManagement from './StockManagement';
+import { StockManagement } from './StockManagement';
+import { FuelRecordsProvider } from '@/contexts/FuelRecordsContext';
 
 interface Station {
   id: string;
@@ -202,7 +202,9 @@ const StationDashboard = () => {
           </TabsContent>
 
           <TabsContent value="stock">
-            <StockManagement stationId={station.id} />
+            <FuelRecordsProvider>
+              <StockManagement stationId={station.id} />
+            </FuelRecordsProvider>
           </TabsContent>
         </Tabs>
       </div>
