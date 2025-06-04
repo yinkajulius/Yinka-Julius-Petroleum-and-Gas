@@ -529,7 +529,7 @@ const DailySummary = ({ stationId }: DailySummaryProps) => {
       </div>
 
       {/* Tank Levels */}
-      <Card>
+        <Card>
         <CardHeader>
           <CardTitle>Tank Levels</CardTitle>
         </CardHeader>
@@ -566,7 +566,7 @@ const DailySummary = ({ stationId }: DailySummaryProps) => {
                 </div>
               );
             })}
-          </div>
+              </div>
         </CardContent>
       </Card>
 

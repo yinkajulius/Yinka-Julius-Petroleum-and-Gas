@@ -407,12 +407,12 @@ export const StockManagement = ({ stationId }: StockManagementProps): React.Reac
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-center">
         <h2 className="text-2xl font-bold">Tank Management</h2>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:gap-4">
           <Dialog open={showCapacityDialog} onOpenChange={setShowCapacityDialog}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="w-full md:w-auto">
                 <Settings className="h-4 w-4 mr-2" />
                 Manage Tank Capacities
               </Button>
@@ -470,21 +470,23 @@ export const StockManagement = ({ stationId }: StockManagementProps): React.Reac
               </div>
             </DialogContent>
           </Dialog>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="date" className="text-sm text-gray-600">Select Date:</Label>
-            <div className="relative">
-              <CalendarIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                type="date"
-                id="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="pl-8"
-              />
+          <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:gap-2">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="date" className="text-sm text-gray-600 whitespace-nowrap">Select Date:</Label>
+              <div className="relative flex-1">
+                <CalendarIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                <Input
+                  type="date"
+                  id="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="pl-8 w-full"
+                />
+              </div>
             </div>
-          </div>
-          <div className="text-sm text-gray-500">
-            Showing stocks for: {format(new Date(selectedDate), 'dd/MM/yyyy')}
+            <div className="text-sm text-gray-500">
+              Showing stocks for: {format(new Date(selectedDate), 'dd/MM/yyyy')}
+            </div>
           </div>
         </div>
       </div>
