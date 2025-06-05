@@ -372,7 +372,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
         updatedRecord = data;
       }
 
-      // Update tomorrow's opening stock
+      // Update tomorrow's opening stock AND meter_opening
       const { data: tomorrowRecord, error: tomorrowError } = await supabase
         .from('fuel_records')
         .select('id')
@@ -384,17 +384,17 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
       if (tomorrowError && tomorrowError.code !== 'PGRST116') throw tomorrowError;
 
       if (tomorrowRecord) {
-        // Update tomorrow's opening stock
+        // Update tomorrow's opening stock AND meter_opening
         const { error: updateError } = await supabase
           .from('fuel_records')
           .update({
-            opening_stock: closingStock
+            opening_stock: closingStock,
+            meter_opening: parseFloat(meterClosing) || 0
           })
           .eq('id', tomorrowRecord.id);
-
         if (updateError) throw updateError;
       } else {
-        // Create tomorrow's record with opening stock
+        // Create tomorrow's record with opening stock AND meter_opening
         const { error: insertError } = await supabase
           .from('fuel_records')
           .insert({
@@ -403,15 +403,14 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
             product_type: pump.product_type,
             record_date: tomorrowDate,
             opening_stock: closingStock,
+            meter_opening: parseFloat(meterClosing) || 0,
+            meter_closing: 0,
             sales_volume: 0,
             input_mode: 'auto',
-            meter_opening: 0,
-            meter_closing: 0,
             closing_stock: closingStock,
             price_per_litre: 0,
             total_sales: 0
           });
-
         if (insertError) throw insertError;
       }
 
