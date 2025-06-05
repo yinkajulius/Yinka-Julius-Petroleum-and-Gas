@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 
 interface DailySummaryProps {
   stationId: string;
+  date: string;
 }
 
 interface SalesData {
@@ -57,8 +58,7 @@ interface TankLevel {
   last_updated: string;
 }
 
-const DailySummary = ({ stationId }: DailySummaryProps) => {
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+const DailySummary = ({ stationId, date }: DailySummaryProps) => {
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [selectedYear, setSelectedYear] = useState(format(new Date(), 'yyyy'));
   const [loading, setLoading] = useState(true);
@@ -82,7 +82,7 @@ const DailySummary = ({ stationId }: DailySummaryProps) => {
         .from('fuel_records')
         .select('product_type, total_sales, sales_volume, price_per_litre')
         .eq('station_code', stationId)
-        .eq('record_date', selectedDate);
+        .eq('record_date', date);
 
       if (salesError) throw salesError;
 
@@ -111,7 +111,7 @@ const DailySummary = ({ stationId }: DailySummaryProps) => {
         .from('expenses')
         .select('category, amount, description')
         .eq('station_id', stationId)
-        .eq('expense_date', selectedDate);
+        .eq('expense_date', date);
 
       if (expenseError) throw expenseError;
 
@@ -350,7 +350,7 @@ const DailySummary = ({ stationId }: DailySummaryProps) => {
   // Load summary data only when necessary
   useEffect(() => {
     loadSummaryData();
-  }, [stationId, selectedDate]);
+  }, [stationId, date]);
 
   // Load trend data when date selection changes
   useEffect(() => {
@@ -384,31 +384,8 @@ const DailySummary = ({ stationId }: DailySummaryProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Date Selector */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Daily Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <label htmlFor="summary-date" className="text-sm font-medium">
-              Select Date:
-            </label>
-            <input
-              id="summary-date"
-              type="date"
-              value={selectedDate}
-              onChange={(e) => {
-                setSelectedDate(e.target.value);
-                if (selectedDate) {
-                  loadSummaryData();
-                }
-              }}
-              className="px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      
+      
 
       {/* Detailed Summary Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -528,47 +505,7 @@ const DailySummary = ({ stationId }: DailySummaryProps) => {
         </Card>
       </div>
 
-      {/* Tank Levels */}
-        <Card>
-        <CardHeader>
-          <CardTitle>Tank Levels</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {tankLevels.map((tank, index) => {
-              const percentage = (tank.current_volume / tank.max_capacity) * 100;
-              let statusColor = 'bg-green-500';
-              if (percentage <= 20) {
-                statusColor = 'bg-red-500';
-              } else if (percentage <= 40) {
-                statusColor = 'bg-yellow-500';
-              }
-
-              return (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-medium">{tank.product_type}</span>
-                      <span className="text-sm text-gray-500 ml-2">
-                        Last updated: {format(new Date(tank.last_updated), 'MMM dd, yyyy')}
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium">
-                      {tank.current_volume.toLocaleString()}L / {tank.max_capacity.toLocaleString()}L
-                    </span>
-                  </div>
-                  <div className="relative w-full h-4 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
-                      className={`absolute left-0 top-0 h-full ${statusColor} transition-all duration-500`}
-                      style={{ width: `${Math.min(percentage, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-              </div>
-        </CardContent>
-      </Card>
+    
 
       {/* Time Period Selection */}
       <div className="flex justify-between items-center mb-4">

@@ -10,6 +10,8 @@ import ExpenseForm from './ExpenseForm';
 import DailySummary from './DailySummary';
 import { StockManagement } from './StockManagement';
 import { FuelRecordsProvider } from '@/contexts/FuelRecordsContext';
+import { Input } from '@/components/ui/input';
+import { format } from 'date-fns';
 
 interface Station {
   id: string;
@@ -27,6 +29,7 @@ const StationDashboard = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [debugInfo, setDebugInfo] = useState<string>('');
+  const [unifiedDate, setUnifiedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const { toast } = useToast();
 
   useEffect(() => {
@@ -167,6 +170,20 @@ const StationDashboard = () => {
         </div>
       </div>
 
+      {/* Unified Date Picker */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="flex items-center gap-4">
+          <label htmlFor="unified-date" className="font-medium text-gray-700">Select Date:</label>
+          <Input
+            id="unified-date"
+            type="date"
+            value={unifiedDate}
+            onChange={e => setUnifiedDate(e.target.value)}
+            className="w-48"
+          />
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="summary" className="space-y-6">
@@ -190,20 +207,20 @@ const StationDashboard = () => {
           </TabsList>
 
           <TabsContent value="summary">
-            <DailySummary stationId={station.id} />
+            <DailySummary stationId={station.id} date={unifiedDate} />
           </TabsContent>
 
           <TabsContent value="fuel-records">
-            <FuelRecordForm stationId={station.id} />
+            <FuelRecordForm stationId={station.id} date={unifiedDate} />
           </TabsContent>
 
           <TabsContent value="expenses">
-            <ExpenseForm stationId={station.id} />
+            <ExpenseForm stationId={station.id} date={unifiedDate} />
           </TabsContent>
 
           <TabsContent value="stock">
             <FuelRecordsProvider>
-              <StockManagement stationId={station.id} />
+              <StockManagement stationId={station.id} date={unifiedDate} />
             </FuelRecordsProvider>
           </TabsContent>
         </Tabs>

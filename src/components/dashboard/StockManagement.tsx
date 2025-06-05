@@ -25,6 +25,7 @@ import {
 
 interface StockManagementProps {
   stationId: string;
+  date: string;
 }
 
 interface Pump {
@@ -58,17 +59,16 @@ interface TankCapacity {
   capacity: number;
 }
 
-export const StockManagement = ({ stationId }: StockManagementProps): React.ReactElement => {
+export const StockManagement = ({ stationId, date }: StockManagementProps): React.ReactElement => {
   const [tankGroups, setTankGroups] = useState<TankGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [restockAmounts, setRestockAmounts] = useState<RestockInputs>({});
   const [restockLoading, setRestockLoading] = useState<{ [key: string]: boolean }>({});
   const [showCapacityDialog, setShowCapacityDialog] = useState(false);
   const [selectedTank, setSelectedTank] = useState<string>('');
   const [newCapacity, setNewCapacity] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const previousDay = format(subDays(new Date(selectedDate), 1), 'yyyy-MM-dd');
+  const previousDay = format(subDays(new Date(date), 1), 'yyyy-MM-dd');
   const { toast } = useToast();
   const [capacities, setCapacities] = useState<TankCapacity[]>([]);
 
@@ -76,7 +76,7 @@ export const StockManagement = ({ stationId }: StockManagementProps): React.Reac
 
   useEffect(() => {
     fetchPumpsAndStock();
-  }, [stationId, selectedDate]);
+  }, [stationId, date]);
 
   const handleRestockChange = (tankId: string, value: string) => {
     setRestockAmounts(prev => ({
@@ -130,7 +130,7 @@ export const StockManagement = ({ stationId }: StockManagementProps): React.Reac
         .select('id, sales_volume')
         .eq('station_code', stationId)
         .eq('pump_id', pumpData.id)
-        .eq('record_date', selectedDate)
+        .eq('record_date', date)
         .single();
 
       if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is the "no rows returned" error
@@ -156,7 +156,7 @@ export const StockManagement = ({ stationId }: StockManagementProps): React.Reac
             station_code: stationId,
             pump_id: pumpData.id,
             product_type: product_type,
-            record_date: selectedDate,
+            record_date: date,
             opening_stock: newOpeningStock,
             sales_volume: 0,
             input_mode: 'restock',
@@ -222,7 +222,7 @@ export const StockManagement = ({ stationId }: StockManagementProps): React.Reac
         .select('opening_stock, sales_volume')
         .eq('station_code', stationId)
         .eq('pump_id', pumpData.id)
-        .eq('record_date', selectedDate)
+        .eq('record_date', date)
         .single();
 
       // If we have today's record, return it
@@ -236,7 +236,7 @@ export const StockManagement = ({ stationId }: StockManagementProps): React.Reac
       }
 
       // If no record exists for today, get yesterday's closing stock
-      const previousDate = format(subDays(new Date(selectedDate), 1), 'yyyy-MM-dd');
+      const previousDate = format(subDays(new Date(date), 1), 'yyyy-MM-dd');
       const { data: yesterdayData, error: yesterdayError } = await supabase
         .from('fuel_records')
         .select('closing_stock')
@@ -470,24 +470,6 @@ export const StockManagement = ({ stationId }: StockManagementProps): React.Reac
               </div>
             </DialogContent>
           </Dialog>
-          <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:gap-2">
-            <div className="flex items-center gap-2">
-              <Label htmlFor="date" className="text-sm text-gray-600 whitespace-nowrap">Select Date:</Label>
-              <div className="relative flex-1">
-                <CalendarIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  type="date"
-                  id="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="pl-8 w-full"
-                />
-              </div>
-            </div>
-            <div className="text-sm text-gray-500">
-              Showing stocks for: {format(new Date(selectedDate), 'dd/MM/yyyy')}
-            </div>
-          </div>
         </div>
       </div>
 

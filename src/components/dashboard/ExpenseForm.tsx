@@ -12,10 +12,10 @@ import { format } from 'date-fns';
 
 interface ExpenseFormProps {
   stationId: string;
+  date: string;
 }
 
-const ExpenseForm = ({ stationId }: ExpenseFormProps) => {
-  const [expenseDate, setExpenseDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+const ExpenseForm = ({ stationId, date }: ExpenseFormProps) => {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
@@ -49,7 +49,7 @@ const ExpenseForm = ({ stationId }: ExpenseFormProps) => {
 
   useEffect(() => {
     loadSavedExpenses();
-  }, [stationId, expenseDate]);
+  }, [stationId, date]);
 
   const loadSavedExpenses = async () => {
     try {
@@ -57,7 +57,7 @@ const ExpenseForm = ({ stationId }: ExpenseFormProps) => {
         .from('expenses')
         .select('*')
         .eq('station_id', stationId)
-        .eq('expense_date', expenseDate)
+        .eq('expense_date', date)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -105,7 +105,7 @@ const ExpenseForm = ({ stationId }: ExpenseFormProps) => {
       if (category === 'Fuel Collection') {
         expenseData = {
           station_id: stationId,
-          expense_date: expenseDate,
+          expense_date: date,
           category,
           amount: parseFloat(calculateAmount()),
           description: JSON.stringify({
@@ -122,7 +122,7 @@ const ExpenseForm = ({ stationId }: ExpenseFormProps) => {
       } else {
         expenseData = {
           station_id: stationId,
-          expense_date: expenseDate,
+          expense_date: date,
           description: description.trim(),
           amount: parseFloat(amount),
           category: category || null
@@ -207,17 +207,6 @@ const ExpenseForm = ({ stationId }: ExpenseFormProps) => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="expense-date">Expense Date</Label>
-                <Input
-                  id="expense-date"
-                  type="date"
-                  value={expenseDate}
-                  onChange={(e) => setExpenseDate(e.target.value)}
-                  required
-                />
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <Select value={category} onValueChange={setCategory}>
@@ -376,7 +365,7 @@ const ExpenseForm = ({ stationId }: ExpenseFormProps) => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Expenses for {format(new Date(expenseDate), 'dd MMMM yyyy')}</CardTitle>
+          <CardTitle>Expenses for {format(new Date(date), 'dd MMMM yyyy')}</CardTitle>
           <p className="text-sm text-gray-500">Total expenses: {savedExpenses.length}</p>
         </CardHeader>
         <CardContent>
