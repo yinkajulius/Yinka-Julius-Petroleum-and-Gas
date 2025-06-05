@@ -185,29 +185,42 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
   };
 
   const handlePumpSelection = async (pumpId: string) => {
-    const existingRecord = savedRecords.find(record => record.pump_id === pumpId);
-    if (existingRecord) {
+    // Find a record for this pump that passes the filter
+    const filteredRecord = savedRecords.find(
+      record => record.pump_id === pumpId && (record.input_mode !== 'auto' || record.sales_volume > 0)
+    );
+    const autoZeroRecord = savedRecords.find(
+      record => record.pump_id === pumpId && record.input_mode === 'auto' && record.sales_volume === 0
+    );
+
+    if (filteredRecord) {
       setPendingPumpSelection(pumpId);
       setShowDialog(true);
-    } else {
-      // No existing record, check previous day's closing
+      return;
+    } else if (autoZeroRecord) {
+      // Go straight to edit mode for the auto record with zero sales
       setSelectedPump(pumpId);
-      const previousClosing = await loadPreviousDayClosing(pumpId);
-      
-      if (previousClosing !== null) {
-        setMeterOpening(previousClosing.toString());
-        toast({
-          title: "Info",
-          description: "Meter opening has been set to previous day's closing reading.",
-        });
-      } else {
-        setMeterOpening('');
-      }
-      
-      setMeterClosing('');
-      setIsEditing(false);
-      setEditingRecordId(null);
+      setMeterOpening(autoZeroRecord.meter_opening.toString());
+      setMeterClosing(autoZeroRecord.meter_closing.toString());
+      setIsEditing(true);
+      setEditingRecordId(autoZeroRecord.id);
+      return;
     }
+    // No record at all, proceed as normal
+    setSelectedPump(pumpId);
+    const previousClosing = await loadPreviousDayClosing(pumpId);
+    if (previousClosing !== null) {
+      setMeterOpening(previousClosing.toString());
+      toast({
+        title: "Info",
+        description: "Meter opening has been set to previous day's closing reading.",
+      });
+    } else {
+      setMeterOpening('');
+    }
+    setMeterClosing('');
+    setIsEditing(false);
+    setEditingRecordId(null);
   };
 
   const handleCreateNew = async () => {
