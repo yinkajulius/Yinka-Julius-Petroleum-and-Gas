@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +11,7 @@ import ExpenseForm from './ExpenseForm';
 import DailySummary from './DailySummary';
 import { StockManagement } from './StockManagement';
 import { FuelRecordsProvider } from '@/contexts/FuelRecordsContext';
+import { Input } from '@/components/ui/input';
 
 interface Station {
   id: string;
@@ -226,9 +228,7 @@ const StationDashboard = () => {
             </FuelRecordsProvider>
           </TabsContent>
 
-          <TabsContent value="staff">
-            <StaffPage stationId={station.id} />
-          </TabsContent>
+        
         </Tabs>
       </div>
     </div>
