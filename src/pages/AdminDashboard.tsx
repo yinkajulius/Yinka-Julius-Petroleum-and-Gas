@@ -119,7 +119,7 @@ const AdminDashboard = () => {
                     <CardTitle>Summary</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <DailySummary stationId={station.id} />
+                    <DailySummary stationId={station.id} date={new Date().toISOString().split('T')[0]} />
                   </CardContent>
                 </Card>
                 <Card>
@@ -128,7 +128,7 @@ const AdminDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     {/* Only admin can edit tanks, so show StockManagement as-is */}
-                    <StockManagement stationId={station.id} />
+                    <StockManagement stationId={station.id} date={new Date().toISOString().split('T')[0]} />
                   </CardContent>
                 </Card>
               </div>

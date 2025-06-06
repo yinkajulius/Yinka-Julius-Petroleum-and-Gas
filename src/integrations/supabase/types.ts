@@ -299,6 +299,56 @@ export type Database = {
           }
         ]
       }
+      staff: {
+        Row: {
+          id: string;
+          station_id: string;
+          name: string;
+          position: string;
+          phone: string | null;
+          social_media: any | null;
+          picture: string | null;
+          date_of_employment: string | null;
+          birthday: string | null;
+          inserted_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          station_id: string;
+          name: string;
+          position: string;
+          phone?: string | null;
+          social_media?: any | null;
+          picture?: string | null;
+          date_of_employment?: string | null;
+          birthday?: string | null;
+          inserted_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          station_id?: string;
+          name?: string;
+          position?: string;
+          phone?: string | null;
+          social_media?: any | null;
+          picture?: string | null;
+          date_of_employment?: string | null;
+          birthday?: string | null;
+          inserted_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_station_id_fkey";
+            columns: ["station_id"];
+            isOneToOne: false;
+            referencedRelation: "stations";
+            referencedColumns: ["id"];
+          }
+        ];
+      }
     }
     Views: {
       [_ in never]: never
@@ -326,7 +376,7 @@ export type Tables<
   }
     ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
   ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {

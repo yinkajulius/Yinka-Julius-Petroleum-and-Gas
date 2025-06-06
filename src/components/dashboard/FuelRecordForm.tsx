@@ -33,13 +33,13 @@ interface ProductPrice {
 
 interface FuelRecordFormProps {
   stationId: string;
+  date: string;
 }
 
-const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
+const FuelRecordForm = ({ stationId, date }: FuelRecordFormProps) => {
   const [pumps, setPumps] = useState<Pump[]>([]);
   const [prices, setPrices] = useState<ProductPrice[]>([]);
   const [selectedPump, setSelectedPump] = useState<string>('');
-  const [recordDate, setRecordDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [meterOpening, setMeterOpening] = useState('');
   const [meterClosing, setMeterClosing] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,7 +55,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
     loadPrices();
     loadSavedRecords();
     initializeStockData();
-  }, [stationId, recordDate]);
+  }, [stationId, date]);
 
   useEffect(() => {
     console.log('savedRecords updated:', savedRecords);
@@ -115,7 +115,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
         .from('fuel_records')
         .select('*')
         .eq('station_code', stationId)
-        .eq('record_date', recordDate)
+        .eq('record_date', date)
         .order('created_at', { ascending: false });
 
       if (fuelError) throw fuelError;
@@ -146,7 +146,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
 
   const loadPreviousDayClosing = async (pumpId: string) => {
     try {
-      const previousDate = new Date(recordDate);
+      const previousDate = new Date(date);
       previousDate.setDate(previousDate.getDate() - 1);
       const formattedPreviousDate = format(previousDate, 'yyyy-MM-dd');
 
@@ -296,7 +296,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
         .select('*')
         .eq('station_code', stationId)
         .eq('pump_id', selectedPump)
-        .eq('record_date', recordDate)
+        .eq('record_date', date)
         .single();
 
       if (todayError && todayError.code !== 'PGRST116') throw todayError;
@@ -307,7 +307,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
         existingRecordId = todayRecord.id;
       } else {
         // If no today's record, get yesterday's closing stock
-        const previousDate = new Date(recordDate);
+        const previousDate = new Date(date);
         previousDate.setDate(previousDate.getDate() - 1);
         const formattedPreviousDate = format(previousDate, 'yyyy-MM-dd');
 
@@ -329,7 +329,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
       const closingStock = Math.max(0, openingStock - salesVolume);
 
       // Get tomorrow's date
-      const tomorrow = new Date(recordDate);
+      const tomorrow = new Date(date);
       tomorrow.setDate(tomorrow.getDate() + 1);
       const tomorrowDate = format(tomorrow, 'yyyy-MM-dd');
 
@@ -337,7 +337,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
         station_code: stationId,
         pump_id: selectedPump,
         product_type: pump.product_type,
-        record_date: recordDate,
+        record_date: date,
         meter_opening: parseFloat(meterOpening) || 0,
         meter_closing: parseFloat(meterClosing) || 0,
         sales_volume: salesVolume,
@@ -509,7 +509,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
           .select('*')
           .eq('station_code', stationId)
           .eq('pump_id', pump.id)
-          .eq('record_date', recordDate)
+          .eq('record_date', date)
           .single();
 
         if (todayError && todayError.code !== 'PGRST116') throw todayError;
@@ -517,7 +517,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
         // If no record exists for today
         if (!todayRecord) {
           // Get yesterday's closing stock
-          const previousDate = new Date(recordDate);
+          const previousDate = new Date(date);
           previousDate.setDate(previousDate.getDate() - 1);
           const formattedPreviousDate = format(previousDate, 'yyyy-MM-dd');
 
@@ -540,7 +540,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
               station_code: stationId,
               pump_id: pump.id,
               product_type: pump.product_type,
-              record_date: recordDate,
+              record_date: date,
               opening_stock: openingStock,
               closing_stock: openingStock, // Initially same as opening stock
               sales_volume: 0,
@@ -579,17 +579,6 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="date">Record Date</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={recordDate}
-                  onChange={(e) => setRecordDate(e.target.value)}
-                  required
-                />
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="pump">Pump</Label>
                 <Select value={selectedPump} onValueChange={handlePumpSelection} required>
@@ -663,7 +652,7 @@ const FuelRecordForm = ({ stationId }: FuelRecordFormProps) => {
       {/* Saved Records Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Records for {format(new Date(recordDate), 'dd MMMM yyyy')}</CardTitle>
+          <CardTitle>Records for {format(new Date(date), 'dd MMMM yyyy')}</CardTitle>
           <p className="text-sm text-gray-500">Total records: {savedRecords.filter(record => record.input_mode !== 'auto' || record.sales_volume > 0).length}</p>
         </CardHeader>
         <CardContent>
